@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.0)
+project(Graph)
+add_library(GRAPH STATIC Graph.cpp)
+add_executable(output main.cpp)
+target_link_libraries(output GRAPH)
+SET(CMAKE_CXX_FLAGS "-std=c++14")

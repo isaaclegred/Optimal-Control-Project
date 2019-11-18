@@ -1,26 +1,27 @@
 
-[x, y] = meshgrid(linspace(-2,5,100), linspace(-2,5,100));
+[x, y] = meshgrid(linspace(-2,2,100), linspace(-2,2,100));
 coords = [x(:) y(:)];
 % h = .77;
 % Adj = make_graph(coords, h);
- gplot(Adj , coords);
+% gplot(Adj , coords);
 % %Adj = diag(ones(24,1),1) + diag(ones(24,1),-1)+ diag(ones(20,1), 5) + diag(ones(20,1), -5);
 % psize = size(coords);
 % values = Value(coords, @Cost, 1, Adj)
 % %contourf(linspace(-1,1,20), linspace(-1,1,20), reshape(values, [20,20]) )
-Adj = load('G10by10.mat', 'G');
+Adj = load('G.mat', 'G');
 Adj = Adj.G;
 values = Value(coords, @Cost, 4951, Adj)
 
 
 function C = Cost(X, ~)
-     C =  1/10*sum(X.^2,2).*cos(.1001*sum(X, 2)).^2.*exp(-.5*(X(:,1).^2 + X(:,2).^2));
+     C =  1/10*sum(X.^2,2).*cos(.112*sum(X, 2)).^2.*exp(-.5*(X(:,1).^2 + X(:,2).^2));
 end
 function V = Value(positions, K, exit, adjacency)
     num_coords = size(positions);
     nodes  = 1:1:num_coords(1);
     Values = 10^9*ones(size(nodes));
     Values(exit) = 0;
+    size(adjacency)
     exit_neighbors = nonzeros(adjacency(exit,:).*nodes);
     % Initialize the value of the neighbors of the exit node
     Values(exit_neighbors) = K(positions(exit_neighbors,:), ...
@@ -64,4 +65,17 @@ for i = nodes
         end
     end
 end
+end
+% Unless the cost is anisotropic this function cannot be useful given
+% vurrent methods
+function [direction, mincost] = SemiLagrange(tentative, accepted, settled, K)
+    % make a line connecting accepted and settled
+    x1 = coords(accepted, :);
+    x2 = coords(settled, :);
+    x = coords(tentative, :);
+    f(x)
+    % compute minimum allowed cost on that edge,
+    % in the isotropic case this is just find the closest you
+    % can get to the smaller node.  
+    
 end

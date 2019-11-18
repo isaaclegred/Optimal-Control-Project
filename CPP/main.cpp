@@ -7,4 +7,5 @@ int main(){
   std::vector<bool> a = A[0];
   bool b = a[0];
   std::cout << b << std::endl;
-    }
+  positions = ;
+}

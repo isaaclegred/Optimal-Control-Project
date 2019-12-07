@@ -19,10 +19,29 @@ outer_contacts_up = [];
 outer_contacts_down = [];
 outer_contacts_left = [];
 outer_contacts_right = [];
-for i = 1:1:700
-    angle = 1/700 * 2*i * pi;
+N = 640;
+fig =figure()
+for i = 1:1:N
+    angle = 1/N * 2*i * pi;
    [times, trajectory, hits] = get_ray(angle);
 end
+
+fig = figure();
+hist(outer_contacts_up, 20)
+title("Illuminance of y_h =1")
+saveas(fig, "out_up.png")
+fig = figure();
+hist(outer_contacts_down, 20)
+title("Illuminance of y_h = -1")
+saveas(fig, "out_down.png")
+fig = figure();
+hist(inner_contacts_up, 20)
+title("Illuminance of y_h = .5")
+saveas(fig, "in_up.png")
+fig = figure();
+hist(inner_contacts_down, 20)
+title("Illuminance of y_h = -.5")
+saveas(fig, "in_down.png")
 function [times, trajectory, hits] = get_ray(theta)
   
 
@@ -46,7 +65,6 @@ function [times, trajectory, hits] = get_ray(theta)
     options  = odeset('Events', @events );
     f = @(t,Z)  dynamics(t,Z,p); % anonymous function handle
     [times, zOut,te,ye, ie] = ode45(f, t, Z0, options); % call ODE45
-    ye(1,:)
     global inner_contacts_up
     global inner_contacts_down
     global inner_contacts_left
@@ -85,7 +103,8 @@ function [times, trajectory, hits] = get_ray(theta)
     function dZ = dynamics(t,Z,p) % RHS
         dZ = zeros(4,1);
         epsilon  = .001;
-        eta = @(x,y) exp((-(x)^2 - (y-.5)^2)/.1^2);
+        eta = @(x,y) 3/2*exp((-(x-.5)^2 - (y-.5)^2)/2/.1^2)+ 3/2*exp((-(x+.5)^2 - (y-.5)^2)/2/.1^2)...+
+            -1/2*exp((-(x)^2 - (y-.5)^2)/2/.2^2) + 1;
         norm_p = sqrt(Z(3).^2 + Z(4).^2);
         x = Z(1)/norm_p;
         y = Z(2)/norm_p;

@@ -14,7 +14,7 @@ values = Value(coords, @Cost, 4951, Adj)
 
 
 function C = Cost(X, ~)
-     C =  1/10*sum(X.^2,2).*cos(.112*sum(X, 2)).^2.*exp(-.5*(X(:,1).^2 + X(:,2).^2));
+     C =  1/10*sum(X.^2,2).*cos(.117*sum(X, 2)).^2.*exp(-.5*(X(:,1).^2 + X(:,2).^2));
 end
 function V = Value(positions, K, exit, adjacency)
     num_coords = size(positions);

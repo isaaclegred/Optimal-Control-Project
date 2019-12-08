@@ -12,8 +12,9 @@ Adj = Adj.G;
 values = Value(coords, @Cost, 4951, Adj)
 
 
-function C = Cost(X, ~)
-C =  1/10*sum(X.^2,2).*cos(.117*sum(X, 2)).^2.*exp(-.5*(X(:,1).^2 + X(:,2).^2));
+function C = Cost(current, targets)
+move_in
+C =  sum(current.^2,2) + atan2(targets-current);
 end
 % target should be a list of nodes where exit is possible
 function V = Value(positions, K, target, adjacency)
@@ -23,13 +24,6 @@ nodes  = 1:1:num_coords(1);
 Values = 10^9*ones(size(nodes));
 % On the target, the value is zero
 Values(target) = 0;
-target_neighbors = nonzeros(adjacency(target,:).*nodes);
-% Initialize the value of the neighbors of the exit node
-Values(target_neighbors) = K(positions(target_neighbors,:), ...
-    repmat(positions(target,:), size(target_neighbors))-positions(target_neighbors,:));
-To_Reevaluate = transpose(target_neighbors);
-[~,I] = sort(Values(To_Reevaluate));
-To_Reevaluate = unique(To_Reevaluate(I));
 counter = 0;
 % An array stores which nodes have been reevalyated in a certain sweep
 total_counter = 0;
@@ -72,7 +66,7 @@ while(counter < 10)
             num_simps = size(simplices);
             for i  = 1:num_simps(1)
                 simplex = simplices(i,:);
-                [try_val, try_direction]= SemiLagrange(positions, current_node, simplex(1), simplex(2), K, Values, 0);
+                [try_direction, try_val]= SemiLagrange(positions, current_node, simplex(1), simplex(2), K, Values, 0);
                 if try_val < current_min
                     current_min = try_val(1);
                     current_direction = [i, try_direction(1)];
@@ -141,7 +135,7 @@ if minimization_routine
     [direction, min_cost] = minimization_routine(u1, u2, x0, x1, x2);
 else
     interp_points = transpose([linspace(x1(1), x2(1), 20);linspace(x1(2), x2(2), 20)]);
-    costs  = transpose(K(interp_points));
+    costs  = transpose(K(x0, interp_points));
     interp_values  = u1*linspace(0,1,20) + u2*(1-linspace(0,1,20));
     possible_values  = max(costs, interp_values);
     [test_val, test_place] = min(possible_values);

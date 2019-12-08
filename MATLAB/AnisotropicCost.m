@@ -12,8 +12,9 @@ Adj = Adj.G;
 values = Value(coords, @Cost, 4951, Adj)
 
 
-function C = Cost(X, ~)
-C =  sum(X.^2,2).*cos(.117*sum(X, 2)).^2.*exp(-.5*(X(:,1).^2 + X(:,2).^2));
+function C = Cost(current, targets)
+    vdt = targets-current;
+    C =  sum(current.^2,2)*.4*atan2(vdt(2)+ vdt(1)).^2;
 end
 % target should be a list of nodes where exit is possible
 function V = Value(positions, K, target, adjacency)
@@ -26,7 +27,7 @@ Values(target) = 0;
 counter = 0;
 % An array stores which nodes have been reevalyated in a certain sweep
 total_counter = 0;
-while(counter < 10)
+while(counter < 5)
     target_neighbors = nonzeros(adjacency(target,:).*nodes);
     % Initialize the value of the neighbors of the exit node
     Values(target_neighbors) = K(positions(target_neighbors,:), ...
@@ -65,7 +66,7 @@ while(counter < 10)
             num_simps = size(simplices);
             for i  = 1:num_simps(1)
                 simplex = simplices(i,:);
-                [try_val, try_direction]= SemiLagrange(positions, current_node, simplex(1), simplex(2), K, Values, 0);
+                [try_direction, try_val]= SemiLagrange(positions, current_node, simplex(1), simplex(2), K, Values, 0);
                 if try_val < current_min
                     current_min = try_val(1);
                     current_direction = [i, try_direction(1)];
@@ -134,7 +135,7 @@ if minimization_routine
     [direction, min_cost] = minimization_routine(u1, u2, x0, x1, x2);
 else
     interp_points = transpose([linspace(x1(1), x2(1), 20);linspace(x1(2), x2(2), 20)]);
-    costs  = transpose(K(interp_points));
+    costs  = transpose(K(x0, interp_points));
     interp_values  = u1*linspace(0,1,20) + u2*(1-linspace(0,1,20));
     possible_values  = max(costs, interp_values);
     [test_val, test_place] = min(possible_values);

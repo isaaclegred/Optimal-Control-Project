@@ -1,8 +1,8 @@
 close all
-[x, y] = meshgrid(linspace(-2,2,20), linspace(-2,2,20));
+[x, y] = meshgrid(linspace(-2,2,30), linspace(-2,2,30));
 coords = [x(:) y(:)];
-Adj = make_graph(coords,.3);
-values = Value(coords, @App_Cost, 56, Adj, 10)
+Adj = make_graph(coords,.15);
+values = Value(coords, @App_Cost,466, Adj, 1)
 function C = Cost(current, targets)
 vdt = targets-current;
 v_0 = [.0 , 05 ];
@@ -10,7 +10,7 @@ C =  sum(current.^2,2)*.4*((vdt(2)-v_0(2)*cos(current(2))).^2 +  (vdt(1) - v_0(1
 end
 function C_1  = App_Cost(current, targets)
 %v = [cos(current(1)); sin(current(2))];
-v = [0;1];
+v= [0;1];
 fdt = targets - current;
 norms  = sqrt(sum(fdt.^2,2));
 a = fdt./([norms, norms]);
@@ -25,7 +25,7 @@ h = norm(positions(2,:) - positions(1,:));
 num_coords = size(positions);
 nodes  = 1:1:num_coords(1);
 % Initialize all values to +infinity
-Values = 10^9*ones(size(nodes));
+Values = 2*ones(size(nodes));
 % On the target, the value is zero
 Values(target) = 0;
 counter = 0;
@@ -38,7 +38,7 @@ while(counter < iters)
     %end
     target_neighbors = nonzeros(adjacency(target,:).*nodes);
     % Initialize the value of the neighbors of the exit node
-    Values(target_neighbors) = K(positions(target,:), positions(target_neighbors,:));
+    Values(target_neighbors) = K(positions(target_neighbors,:),positions(target,:));
     To_Reevaluate = transpose(target_neighbors);
     [~,I] = sort(Values(To_Reevaluate));
     To_Reevaluate = unique(To_Reevaluate(I));
@@ -73,10 +73,11 @@ while(counter < iters)
             end
         end
         current_min = 10^9;
+        
         % The direction is given by the [simplex, xi_value]
         % [0,0] would mean don't go anywhere
         current_direction = [0, 0];
-        num_simps = size(simplices)
+        num_simps = size(simplices);
         for i  = 1:num_simps(1)
             simplex = simplices(i,:);
             [try_direction, try_val]= SemiLagrange(positions, current_node, simplex(1), simplex(2), K, Values, 0);
@@ -88,8 +89,7 @@ while(counter < iters)
         Values(current_node) = current_min;
         total_counter  = total_counter+1;
     end
-    figure()
-    contourf(linspace(-2,2,20), linspace(-2,2,20), reshape(Values, [20,20]) )
+    
     counter = counter + 1;
 end
 

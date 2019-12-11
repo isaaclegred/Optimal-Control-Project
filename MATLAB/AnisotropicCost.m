@@ -9,13 +9,24 @@ coords = [x(:) y(:)];
 % %contourf(linspace(-1,1,20), linspace(-1,1,20), reshape(values, [20,20]) )
 Adj = load('G.mat', 'G');
 Adj = Adj.G;
-values = Value(coords, @Cost, 4951, Adj)
+values = Value(coords, @App_Cost, 4951, Adj)
 
 
 function C = Cost(current, targets)
     vdt = targets-current;
     v_0 = [.0 , 05 ];
     C =  sum(current.^2,2)*.4*((vdt(2)-v_0(2)*cos(current(2))).^2 +  (vdt(1) - v_0(1)*cos(current(1))).^2);
+end
+function C_1  = App_Cost(current, targets)
+    %v = [cos(current(1)); sin(current(2))];
+    v = [1;0];
+    fdt = targets - current;
+    norms  = sqrt(sum(fdt.^2,2));
+    a = fdt./([norms, norms]);
+    
+    C_1 = norm(v)-  (fdt*v > 0).*a*v;
+  
+    
 end
 % target should be a list of nodes where exit is possible
 function V = Value(positions, K, target, adjacency)
@@ -29,7 +40,8 @@ Values(target) = 0;
 counter = 0;
 % An array stores which nodes have been reevalyated in a certain sweep
 total_counter = 0;
-while(counter < 5)
+while(counter < 2)
+    Values(target) = 0;
     %if(counter ~= 0)
     %    target = randi(num_coords(1));
     %end
@@ -42,6 +54,7 @@ while(counter < 5)
     To_Reevaluate = unique(To_Reevaluate(I));
 
     reevaluated = zeros(num_coords(1), 1);
+    reevaluated(target) =  1;
     while(size(To_Reevaluate) ~= 0)
         To_Reevaluate = unique(To_Reevaluate);
         current_node = To_Reevaluate(1);
@@ -68,7 +81,7 @@ while(counter < 5)
                 end
             end
             
-            current_min = Values(current_node);
+            current_min = 10^9;
             % The direction is given by the [simplex, xi_value]
             % [0,0] would mean don't go anywhere
             current_direction = [0, 0];

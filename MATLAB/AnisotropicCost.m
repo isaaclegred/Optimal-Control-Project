@@ -14,10 +14,12 @@ values = Value(coords, @Cost, 4951, Adj)
 
 function C = Cost(current, targets)
     vdt = targets-current;
-    C =  sum(current.^2,2)*.4*atan2(vdt(2)+ vdt(1)).^2;
+    v_0 = [.0 , 05 ];
+    C =  sum(current.^2,2)*.4*((vdt(2)-v_0(2)*cos(current(2))).^2 +  (vdt(1) - v_0(1)*cos(current(1))).^2);
 end
 % target should be a list of nodes where exit is possible
 function V = Value(positions, K, target, adjacency)
+h = norm(positions(2,:) - positions(1,:));
 num_coords = size(positions);
 nodes  = 1:1:num_coords(1);
 % Initialize all values to +infinity
@@ -28,6 +30,9 @@ counter = 0;
 % An array stores which nodes have been reevalyated in a certain sweep
 total_counter = 0;
 while(counter < 5)
+    %if(counter ~= 0)
+    %    target = randi(num_coords(1));
+    %end
     target_neighbors = nonzeros(adjacency(target,:).*nodes);
     % Initialize the value of the neighbors of the exit node
     Values(target_neighbors) = K(positions(target_neighbors,:), ...
@@ -42,11 +47,15 @@ while(counter < 5)
         current_node = To_Reevaluate(1);
         reevaluated(current_node) = 1;
         To_Reevaluate(1) = [];
+        current_min = Values(current_node);
         relevant_nodes = adjacency(current_node,:).*nodes;
         neighbors = transpose(nonzeros(relevant_nodes));
         % If this nodes neighbors haven't been reevaluated, reevaluate them
         simplices = [];
         for neighbor = neighbors
+            if norm(positions(neighbor,:) - positions(current_node, :))>1.8*h 
+                break
+            end
             if ~reevaluated(neighbor)
                 To_Reevaluate = [To_Reevaluate, neighbor];
             end
@@ -78,7 +87,7 @@ while(counter < 5)
         total_counter  = total_counter+1;
         
     end
-    counter = counter + 1
+    counter = counter + 1;
 end
 
 %     This loop is probably not useful anymore, need to sweep instead of

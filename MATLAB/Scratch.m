@@ -2,7 +2,8 @@ close all
 [x, y] = meshgrid(linspace(-2,2,30), linspace(-2,2,30));
 coords = [x(:) y(:)];
 Adj = make_graph(coords,.15);
-values = Value(coords, @App_Cost,466, Adj, 1)
+[values, Frames] = Value(coords, @App_Cost,466, Adj, 30);
+
 function C = Cost(current, targets)
 vdt = targets-current;
 v_0 = [.0 , 05 ];
@@ -20,12 +21,13 @@ C_1 = norm(v)-  (fdt*v > 0).*a*v;
 
 end
 % target should be a list of nodes where exit is possible
-function V = Value(positions, K, target, adjacency, iters)
+function [V, Frames] = Value(positions, K, target, adjacency, iters)
+Frames = [];
 h = norm(positions(2,:) - positions(1,:));
 num_coords = size(positions);
 nodes  = 1:1:num_coords(1);
 % Initialize all values to +infinity
-Values = 2*ones(size(nodes));
+Values = 10000*ones(size(nodes));
 % On the target, the value is zero
 Values(target) = 0;
 counter = 0;
@@ -86,10 +88,16 @@ while(counter < iters)
                 current_direction = [i, try_direction(1)];
             end
         end
+        if mod(node, 300)==0
+            figure()
+            contourf(linspace(-2,2,30), linspace(-2,2,30), reshape(Values, [30,30]), 20 );
+            F = getframe;
+            Frames = [Frames, F];
+        end
         Values(current_node) = current_min;
         total_counter  = total_counter+1;
     end
-    
+   
     counter = counter + 1;
 end
 
@@ -134,7 +142,7 @@ if minimization_routine
 else
     interp_points = transpose([linspace(x1(1), x2(1), 20);linspace(x1(2), x2(2), 20)]);
     costs  = transpose(K(x0, interp_points));
-    interp_values  = u1*linspace(0,1,20) + u2*(1-linspace(0,1,20));
+    interp_values  = u2*linspace(0,1,20) + u1*(1-linspace(0,1,20));
     possible_values  = max(costs, interp_values);
     [test_val, test_place] = min(possible_values);
     direction = test_place/20;

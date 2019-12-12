@@ -50,13 +50,12 @@ while(counter < iters)
     while(size(To_Reevaluate) ~= 0)
         To_Reevaluate = unique(To_Reevaluate);
         To_Reevaluate(randperm(length(To_Reevaluate)))
-        current_node = To_Reevaluate(1)
+        current_node = To_Reevaluate(1);
         reevaluated(current_node) = 1;
         To_Reevaluate(1) = [];
         current_min = Values(current_node);
         relevant_nodes = adjacency(current_node,:).*nodes;
         neighbors = transpose(nonzeros(relevant_nodes));
-        neighbors;
         % If this nodes neighbors haven't been reevaluated, reevaluate them
         simplices = [];
         for neighbor = neighbors

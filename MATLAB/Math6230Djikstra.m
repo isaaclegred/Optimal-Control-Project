@@ -8,14 +8,25 @@ coords = [x(:) y(:)];
 % psize = size(coords);
 % values = Value(coords, @Cost, 1, Adj)
 % %contourf(linspace(-1,1,20), linspace(-1,1,20), reshape(values, [20,20]) )
+% v = VideoWriter('newfile.mp4','Motion MPEG-4');
+% 
 Adj = load('G.mat', 'G');
 Adj = Adj.G;
-values = Value(coords, @Cost, 4951, Adj)
-
-
-function C = Cost(X, ~)
-     C =  1/10*sum(X.^2,2).*cos(.117*sum(X, 2)).^2.*exp(-.5*(X(:,1).^2 + X(:,2).^2));
+omega = .098;
+Frames  = [];
+while(omega < .119)
+     values = Value(coords, @(X,a) Cost(X, a, omega), 4951, Adj);
+     contourf(linspace(-1,1,100), linspace(-1,1,100), reshape(values, [100,100]) );
+     title("omega = " + omega)
+     frame = getframe;
+     omega = omega + .0005;
+     Frames = [Frames, frame];
 end
+    
+
+function C = Cost(X, ~, omega)
+         C =  1/10*sum(X.^2,2).*cos(omega*sum(X, 2)).^2.*exp(-.5*(X(:,1).^2 + X(:,2).^2));
+    end
 function V = Value(positions, K, exit, adjacency)
     num_coords = size(positions);
     nodes  = 1:1:num_coords(1);
@@ -31,7 +42,7 @@ function V = Value(positions, K, exit, adjacency)
     Tentative = unique(Tentative(I));
     counter = 0;
     while size(Tentative) ~= 0 
-         current_node = Tentative(1)
+         current_node = Tentative(1);
          Tentative(1) = [];
          % Find which nodes have a connection to current_node
          relevant_nodes = adjacency(current_node,:).*nodes;
@@ -39,8 +50,6 @@ function V = Value(positions, K, exit, adjacency)
          % Only consider those neighbors which can benefit from this node
          pick = nonzeros((Values(neighbors) > Values(current_node)).*neighbors);
          use_neighbors = transpose(relevant_nodes(pick));
-         size(use_neighbors)
-         size(positions(use_neighbors,:))
 
          Values(use_neighbors) = max(Values(current_node), K(positions(use_neighbors,:), ...
               repmat(positions(current_node,:), size(use_neighbors))-positions(use_neighbors,:)));
@@ -51,7 +60,7 @@ function V = Value(positions, K, exit, adjacency)
          Tentative = Tentative(I);
          counter = counter + 1; 
     end
-    counter
+    counter;
     V = Values;
 end
 function G = make_graph(coords, h)

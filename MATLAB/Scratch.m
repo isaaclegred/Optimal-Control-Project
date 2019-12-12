@@ -88,7 +88,7 @@ while(counter < iters)
                 current_direction = [i, try_direction(1)];
             end
         end
-        if mod(node, 300)==0
+        if mod(node, 600)==0
             figure()
             contourf(linspace(-2,2,30), linspace(-2,2,30), reshape(Values, [30,30]), 20 );
             F = getframe;

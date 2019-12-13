@@ -1,8 +1,8 @@
 close all
-[x, y] = meshgrid(linspace(-2,2,30), linspace(-2,2,30));
+[x, y] = meshgrid(linspace(-2,2,35), linspace(-2,2,35));
 coords = [x(:) y(:)];
 Adj = make_graph(coords,.15);
-[values, Frames] = Value(coords, @App_Cost,466, Adj, 30);
+[values, Frames] = Value(coords, @App_Cost,613, Adj, 100);
 
 function C = Cost(current, targets)
 vdt = targets-current;
@@ -11,7 +11,7 @@ C =  sum(current.^2,2)*.4*((vdt(2)-v_0(2)*cos(current(2))).^2 +  (vdt(1) - v_0(1
 end
 function C_1  = App_Cost(current, targets)
 %v = [cos(current(1)); sin(current(2))];
-v= [0;1];
+v= [cos(2*current(1)); sin(2*current(2))];
 fdt = targets - current;
 norms  = sqrt(sum(fdt.^2,2));
 a = fdt./([norms, norms]);
@@ -88,8 +88,7 @@ while(counter < iters)
             end
         end
         if mod(node, 600)==0
-            figure()
-            contourf(linspace(-2,2,30), linspace(-2,2,30), reshape(Values, [30,30]), 20 );
+            contourf(linspace(-2,2,35), linspace(-2,2,35), reshape(Values, [35,35]), 15 );
             F = getframe;
             Frames = [Frames, F];
         end

@@ -2,7 +2,7 @@ close all
 [x, y] = meshgrid(linspace(-3,3,50), linspace(-3,3,50));
 coords = [x(:) y(:)];
 Adj = make_graph(coords,.15);
-[values, Frames] = Value(coords, @App_Cost,1275, Adj, 100);
+[values, Frames] = Value(coords, @App_Cost,1263, Adj, 100);
 
 function C = Cost(current, targets)
 vdt = targets-current;
@@ -49,7 +49,7 @@ while(counter < iters)
     reevaluated(target) =  1;
     while(size(To_Reevaluate) ~= 0)
         To_Reevaluate = unique(To_Reevaluate);
-        To_Reevaluate(randperm(length(To_Reevaluate)))
+        To_Reevaluate(randperm(length(To_Reevaluate)));
         current_node = To_Reevaluate(1);
         reevaluated(current_node) = 1;
         To_Reevaluate(1) = [];
@@ -64,8 +64,6 @@ while(counter < iters)
             end
             % Get Simplices for the `current_node`
             for node = neighbors
-                node < neighbor;
-                norm(positions(node,:) - positions(neighbor,:));
                 % Check to make sure neighbors are close enough to warrant
                 % an edge between them
                 if node < neighbor && norm(positions(node,:) - positions(neighbor,:)) < 1.5*h
